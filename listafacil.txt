@@ -1,0 +1,1765 @@
+Listafacil - Análise Técnica Completa
+Sistema de Gestão de Listas de Doação Multi-Unidade
+
+📋 Sumário Executivo
+Visão Geral do Sistema
+O Listafacil v3.0 é uma plataforma web desenvolvida em Laravel + Firebase para gerenciar campanhas de doação de organizações religiosas com múltiplas unidades distribuídas nacionalmente. O sistema elimina a necessidade de listas manuais em WhatsApp, oferecendo uma solução centralizada, em tempo real e sem custos operacionais.
+Objetivo Principal
+Criar uma plataforma 100% gratuita que permita:
+
+Gestão hierárquica (Nacional → Unidades → Campanhas → Doações)
+Doações sem cadastro prévio (friction-free)
+Confirmação simplificada para administradores
+Compliance fiscal com exportação para balancete
+Escala nacional (~30.000 usuários em múltiplas unidades)
+
+Proposta de Valor
+
+"Doar sem login, gerenciar com link, editar por PIN, confirmar em 1 clique, custo ZERO."
+
+
+🎯 Análise do Problema e Solução
+Problema Crítico Identificado
+1. Desorganização Operacional
+Situação Atual:
+
+Listas de doação circulam como mensagens de WhatsApp
+Informações se perdem no histórico de conversas
+Múltiplas versões desatualizadas circulam simultaneamente
+Impossível consolidar dados de múltiplas unidades
+
+Impacto:
+
+Perda de tempo dos voluntários (estimado 5-10h/mês por unidade)
+Retrabalho constante
+Falta de transparência
+Desistência de doadores por frustração
+
+2. Barreira de Acesso
+Situação Atual:
+
+Idosos e pessoas com baixa alfabetização têm dificuldade
+Processo de copiar/colar confunde usuários
+Formatação do WhatsApp causa erros
+Sem opção para deficientes visuais
+
+Impacto:
+
+Exclusão de 30-40% do público-alvo potencial
+Redução no volume de doações
+Sobrecarga do administrador com dúvidas
+
+3. Falta de Compliance Fiscal
+Situação Atual:
+
+Sem registro confiável de doações
+Impossível gerar relatórios para balancete
+Comprovantes perdidos ou desorganizados
+Dificuldade em comprovar doações para IR
+
+Impacto:
+
+Risco de auditoria fiscal
+Perda de benefícios fiscais para doadores
+Falta de prestação de contas transparente
+
+Solução Proposta: Arquitetura Técnica
+Stack Tecnológico Escolhido
+Backend: Laravel 10+
+
+Framework PHP robusto e maduro
+Eloquent ORM para manipulação de dados
+Sistema de validação integrado
+Suporte nativo a filas e jobs
+Excelente documentação
+
+Database: Firebase Firestore
+
+Banco NoSQL real-time
+1GB free tier (suficiente para MVP)
+Atualização automática de dados
+Escalabilidade horizontal nativa
+Backup automático incluído
+
+Storage: Firebase Storage
+
+5GB free tier para comprovantes
+CDN global integrado
+URLs temporárias para segurança
+Regras de segurança granulares
+
+Hosting: Firebase Hosting
+
+10GB bandwidth/mês gratuito
+SSL automático
+Deploy simplificado
+Performance otimizada
+
+Frontend: Blade + Alpine.js
+
+Templates Blade (Laravel)
+Alpine.js para interatividade leve
+TailwindCSS para UI responsiva
+Progressive Web App (PWA) capabilities
+
+Por Que Esta Stack?
+1. Custo Zero Garantido
+Firebase Free Tier (Spark Plan):
+- Firestore: 1GB storage + 50k reads/dia + 20k writes/dia
+- Storage: 5GB + 1GB/dia download
+- Hosting: 10GB/mês bandwidth
+
+Estimativa de Uso Real:
+- 30 unidades × 10 campanhas/ano = 300 campanhas
+- 300 campanhas × 100 doações = 30.000 doações/ano
+- 30.000 × 0.5MB comprovante = 15GB/ano (rotação de 60 dias)
+- Storage real usado: ~2.5GB (com rotação)
+
+✅ Sistema opera confortavelmente no free tier
+2. Real-Time Nativo
+
+Firestore sincroniza dados instantaneamente
+Admin vê doações aparecerem em tempo real
+Doadores veem lista atualizar automaticamente
+Zero polling, zero lag
+
+3. Escalabilidade Horizontal
+
+Firebase escala automaticamente
+Sem preocupação com picos de acesso
+Suporta campanhas virais inesperadas
+
+4. Manutenção Simplificada
+
+Backup automático do Firebase
+Sem gerenciamento de servidor
+Atualizações transparentes
+Monitoramento integrado
+
+
+📊 Análise de Requisitos Detalhada
+Requisitos Funcionais Priorizados
+RF-CORE: Funcionalidades Essenciais (Prioridade Crítica)
+IDRequisitoComplexidadeDependênciasEstimativaRF-C01Criar campanha com metadados completosMédiaDatabase, Auth8hRF-C02Doar sem login (nome + contato opcional)AltaFirestore, Validation12hRF-C03Gerar PIN único por doaçãoBaixaUUID generator3hRF-C04Anexar comprovante PIX (upload)MédiaStorage, Validation6hRF-C05Confirmar doação em 1 clique (admin)BaixaFirestore update4hRF-C06Lista real-time de doaçõesAltaFirestore listeners10hRF-C07Compartilhar campanha (link + QR)BaixaQR library4hRF-C08Exportar CSV para balanceteMédiaExport service6hRF-C09Multi-unidade (hierarquia)AltaRBAC, Scopes16hRF-C10Limpeza automática de comprovantes (60d)MédiaCloud Functions, Cron8h
+Total Estimado Core: ~77 horas
+RF-SEC: Funcionalidades Secundárias (Prioridade Alta)
+IDRequisitoComplexidadeEstimativaRF-S01Editar campanha (sem afetar doações)Baixa4hRF-S02Buscar doação por nome (recuperar PIN)Média5hRF-S03Rejeitar comprovante com motivoBaixa3hRF-S04Filtros de doação (status, tipo, forma)Média6hRF-S05Confirmação em loteMédia8hRF-S06Dashboard consolidado nacionalAlta12hRF-S07Mensagem pronta para WhatsAppBaixa4hRF-S08Configurar chave PIX por unidadeBaixa3hRF-S09Gerenciar admins de unidadeMédia10hRF-S10Priorização visual de pendênciasBaixa5h
+Total Estimado Secundário: ~60 horas
+RF-TER: Funcionalidades Terciárias (Prioridade Média - v4.0)
+IDRequisitoEstimativaRF-T01Sugerir novo item (aprovação admin)6hRF-T02Notificação email (nova doação)8hRF-T03Lembrete automático (doação não cumprida)10hRF-T04Dashboard com gráficos12hRF-T05Auto-encerramento (data/meta)6hRF-T06Ranking de unidades8hRF-T07Duplicar campanha (template)5hRF-T08Notificação sonora (real-time)4hRF-T09Atalhos de teclado6hRF-T10Metas nacionais agregadas8h
+Total Estimado Terciário: ~73 horas
+Requisitos Não Funcionais Críticos
+RNF-Performance
+Métricas Obrigatórias:
+┌────────────────────────────────────────────────────┐
+│ Métrica              │ Meta      │ Medição         │
+├────────────────────────────────────────────────────┤
+│ FCP (First Paint)    │ < 1.5s    │ Lighthouse      │
+│ LCP (Largest Paint)  │ < 2.5s    │ Lighthouse      │
+│ TTI (Interactive)    │ < 3.0s    │ Lighthouse      │
+│ Upload comprovante   │ < 5s (3G) │ Firebase Perf   │
+│ Firestore read       │ < 100ms   │ Firebase Console│
+│ Real-time sync       │ < 500ms   │ Custom metric   │
+└────────────────────────────────────────────────────┘
+Estratégias de Otimização:
+
+Lazy loading de imagens
+Code splitting (Alpine.js)
+Firestore indexes otimizados
+CDN para assets estáticos
+Compressão de imagens (client-side)
+
+RNF-Usabilidade (WCAG 2.1 AA)
+Checklist Obrigatório:
+✅ Contraste mínimo 4.5:1 (texto normal)
+✅ Contraste mínimo 3:1 (texto grande)
+✅ Botões mínimo 44×44px (mobile)
+✅ Fonte mínima 16px (corpo), 18px (botões)
+✅ Navegação por teclado completa
+✅ Labels semânticos (screen readers)
+✅ Mensagens de erro claras
+✅ Formulários com validação inline
+✅ Estados visuais claros (hover, focus, disabled)
+✅ Linguagem nível 5ª série (Flesch Reading Ease > 60)
+Ferramentas de Teste:
+
+WAVE (WebAIM)
+axe DevTools
+Lighthouse Accessibility Audit
+Color Contrast Analyzer
+
+RNF-Segurança
+Camadas de Proteção:
+
+Autenticação de Admin
+
+php// Laravel Sanctum para API tokens
+// Firebase Auth para sessões
+// Bcrypt para senhas (cost 12)
+```
+
+2. **Autorização Hierárquica**
+```
+NACIONAL → pode tudo
+UNIDADE → apenas sua unidade
+MODERADOR → apenas confirmar doações
+
+Validação de Input
+
+php// Laravel Request Validation
+'nome' => 'required|min:3|max:100|regex:/^[\pL\s\-]+$/u',
+'valor' => 'required|numeric|min:0.01|max:999999.99',
+'comprovante' => 'required|file|mimes:jpg,png,pdf|max:5120',
+
+Firebase Security Rules
+
+javascript// Firestore Rules
+match /campanhas/{campanhaId} {
+  allow read: if true; // Público pode ler
+  allow write: if request.auth != null; // Apenas autenticados
+}
+
+// Storage Rules
+match /comprovantes/{file} {
+  allow read: if request.auth != null;
+  allow write: if request.resource.size < 5 * 1024 * 1024
+                && request.resource.contentType.matches('image/.*|application/pdf');
+}
+
+Rate Limiting
+
+php// Laravel Throttle Middleware
+RateLimiter::for('donations', function (Request $request) {
+    return Limit::perHour(10)->by($request->ip());
+});
+
+CAPTCHA
+
+html<!-- reCAPTCHA v3 (invisível) -->
+<!-- Score mínimo: 0.5 -->
+<!-- Apenas em produção -->
+```
+
+#### RNF-Disponibilidade
+
+**SLA Targets:**
+```
+Uptime:         99.9% (permitido 43 min downtime/mês)
+RTO:            < 4 horas (Recovery Time Objective)
+RPO:            < 1 hora (Recovery Point Objective)
+Backup:         Automático diário (Firebase nativo)
+Retenção:       30 dias de backups
+Monitoramento:  Firebase Crashlytics + Performance
+Estratégias de Resiliência:
+
+Firestore offline persistence (PWA)
+Graceful degradation (sem JS)
+Retry lógico em uploads
+Health check endpoints
+
+
+🗄️ Modelagem de Dados
+Estrutura Firestore (NoSQL)
+Collection: organizacoes
+javascript{
+  id: "org_abc123",
+  nome: "Organização Religiosa Nacional",
+  slug: "org-nacional",
+  tipo: "religiosa",
+  cnpj: "12.345.678/0001-90",
+  responsavel: {
+    nome: "João Silva",
+    email: "joao@org.com",
+    telefone: "+5511999999999"
+  },
+  created_at: Timestamp,
+  updated_at: Timestamp
+}
+Collection: unidades
+javascript{
+  id: "unidade_sp01",
+  organizacao_id: "org_abc123",
+  nome: "Unidade São Paulo - Centro",
+  cidade: "São Paulo",
+  estado: "SP",
+  endereco: {
+    rua: "Rua Exemplo, 123",
+    cep: "01234-567"
+  },
+  chave_pix: "unidadesp@org.com", // PIX da unidade
+  responsavel: {
+    nome: "Maria Costa",
+    email: "maria@unidadesp.org",
+    telefone: "+5511888888888"
+  },
+  status: "ativa", // ativa | inativa
+  created_at: Timestamp,
+  updated_at: Timestamp
+}
+Collection: campanhas
+javascript{
+  id: "camp_natal2025",
+  unidade_id: "unidade_sp01",
+  titulo: "Campanha Natal 2025",
+  descricao: "Arrecadação de alimentos e brinquedos",
+  token: "abc12345", // URL: /c/abc12345 (único, 8 chars)
+  
+  // Configurações
+  visibilidade: "publica", // publica | privada | interna
+  tipo_doacao: "misto", // itens | dinheiro | misto
+  aceita_sugestoes: false, // Doar item não listado
+  
+  // Metas (opcionais)
+  meta_financeira: 10000.00,
+  meta_itens: 100,
+  
+  // Período
+  data_inicio: Timestamp,
+  data_fim: Timestamp,
+  
+  // Status
+  status: "ativa", // ativa | pausada | encerrada
+  
+  // Estatísticas (cache)
+  stats: {
+    total_doacoes: 45,
+    total_confirmadas: 30,
+    total_pendentes: 15,
+    total_arrecadado: 5230.50,
+    total_itens: 67
+  },
+  
+  created_at: Timestamp,
+  updated_at: Timestamp,
+  encerrada_at: Timestamp | null
+}
+Collection: itens_campanha (opcional, pré-definidos)
+javascript{
+  id: "item_001",
+  campanha_id: "camp_natal2025",
+  nome: "Arroz 5kg",
+  categoria: "alimentos",
+  quantidade_meta: 50,
+  quantidade_prometida: 35,
+  quantidade_entregue: 30,
+  ordem: 1, // Ordem de exibição
+  ativo: true
+}
+Collection: doadores
+javascript{
+  id: "doador_uuid",
+  nome: "Pedro Santos",
+  telefone: "+5511777777777",
+  email: "pedro@email.com",
+  cpf: "123.456.789-00", // Opcional, para IR
+  
+  // Histórico
+  total_doacoes: 5,
+  total_doado: 250.00,
+  primeira_doacao: Timestamp,
+  ultima_doacao: Timestamp,
+  
+  created_at: Timestamp,
+  updated_at: Timestamp
+}
+Collection: doacoes
+javascript{
+  id: "doacao_uuid",
+  campanha_id: "camp_natal2025",
+  doador_id: "doador_uuid",
+  
+  // Identificação (redundância para performance)
+  doador_nome: "Pedro Santos",
+  doador_telefone: "+5511777777777",
+  
+  // PIN de edição
+  pin: "A1B2C3", // 6 chars alfanuméricos, único
+  pin_tentativas: 0, // Bloqueio após 3 tentativas
+  pin_bloqueado_ate: Timestamp | null,
+  
+  // Tipo de doação
+  tipo: "dinheiro", // item | dinheiro
+  
+  // Se tipo = item
+  item_nome: "Arroz 5kg",
+  item_quantidade: 2,
+  
+  // Se tipo = dinheiro
+  valor: 100.00,
+  forma_pagamento: "pix", // pix | dinheiro_fisico
+  
+  // Comprovante (se PIX)
+  comprovante: {
+    url: "https://storage.firebase.com/...",
+    nome_arquivo: "comprovante_20250102.jpg",
+    tamanho: 1024567, // bytes
+    anexado_em: Timestamp,
+    excluido_em: Timestamp | null // Após 60 dias do export
+  },
+  
+  // Status
+  status: "prometido", // prometido | aguardando | confirmado | entregue | cancelado | expirado
+  status_historico: [
+    { status: "prometido", data: Timestamp, responsavel: null },
+    { status: "aguardando", data: Timestamp, responsavel: null },
+    { status: "confirmado", data: Timestamp, responsavel: "admin_uuid" }
+  ],
+  
+  // Confirmação
+  confirmado_por: "admin_uuid",
+  confirmado_em: Timestamp | null,
+  motivo_rejeicao: null, // Se rejeitado
+  
+  // Solicitação de confirmação (dinheiro físico)
+  solicitou_confirmacao: false,
+  solicitou_em: Timestamp | null,
+  
+  // Priorização
+  prioridade: "normal", // urgente | alta | media | normal
+  
+  // Auditoria
+  created_at: Timestamp,
+  updated_at: Timestamp,
+  cancelado_at: Timestamp | null,
+  cancelado_por: "doador" | "admin" | "sistema"
+}
+Collection: usuarios (Admins)
+javascript{
+  id: "admin_uuid",
+  nome: "Maria Admin",
+  email: "maria@org.com",
+  telefone: "+5511666666666",
+  senha_hash: "bcrypt...", // Laravel bcrypt
+  
+  // Permissões
+  role: "unidade", // nacional | unidade | moderador
+  unidade_id: "unidade_sp01", // null se nacional
+  
+  // Firebase Auth
+  firebase_uid: "firebase_uid_xyz",
+  
+  // Status
+  ativo: true,
+  ultimo_acesso: Timestamp,
+  
+  created_at: Timestamp,
+  updated_at: Timestamp
+}
+Collection: exports (Auditoria)
+javascript{
+  id: "export_uuid",
+  campanha_id: "camp_natal2025",
+  tipo: "balancete", // balancete | doadores | completo
+  
+  // Arquivo gerado
+  arquivo: {
+    url: "https://storage.firebase.com/exports/...",
+    nome: "balancete_natal2025_20250115.csv",
+    tamanho: 45678,
+    hash_md5: "abc123def456..."
+  },
+  
+  // Metadados
+  total_registros: 150,
+  total_valor: 15230.50,
+  periodo: {
+    inicio: Timestamp,
+    fim: Timestamp
+  },
+  
+  // Auditoria
+  gerado_por: "admin_uuid",
+  gerado_em: Timestamp,
+  
+  created_at: Timestamp
+}
+Índices Firestore Necessários
+javascript// Composite Indexes (firebase console)
+campanhas:
+  - unidade_id ASC, status ASC, created_at DESC
+  - token ASC (unique)
+
+doacoes:
+  - campanha_id ASC, status ASC, created_at DESC
+  - campanha_id ASC, prioridade DESC, created_at DESC
+  - pin ASC (unique)
+  - doador_id ASC, created_at DESC
+
+doadores:
+  - nome ASC, created_at DESC (para busca)
+  - cpf ASC (se fornecido, para busca)
+
+usuarios:
+  - email ASC (unique)
+  - unidade_id ASC, ativo ASC
+```
+
+---
+
+## 🏗️ Arquitetura do Sistema
+
+### Diagrama de Componentes
+```
+┌──────────────────────────────────────────────────────────────┐
+│                      CAMADA DE APRESENTAÇÃO                  │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   Páginas       │  │   Componentes   │  │   Assets    │ │
+│  │   Públicas      │  │   Alpine.js     │  │   CSS/JS    │ │
+│  │                 │  │                 │  │             │ │
+│  │ - Home          │  │ - ListaReal     │  │ - Tailwind  │ │
+│  │ - Campanha      │  │ - FormDoacao    │  │ - Alpine    │ │
+│  │ - Doar          │  │ - UploadComp    │  │ - QRCode    │ │
+│  │ - MinhaDoacao   │  │ - Dashboard     │  │             │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │   Páginas Admin (Auth Required)                        │ │
+│  │                                                         │ │
+│  │ - Dashboard | Campanhas | Doações | Unidades          │ │
+│  └─────────────────────────────────────────────────────────┘ │
+│                                                              │
+└─────────────────────────┬────────────────────────────────────┘
+                          │
+                          │ HTTP/HTTPS
+                          │
+┌─────────────────────────▼────────────────────────────────────┐
+│                      CAMADA DE APLICAÇÃO                     │
+├──────────────────────────────────────────────────────────────┤
+│                     Laravel 10+ (PHP 8.2)                    │
+│                                                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │ Controllers  │  │ Middleware   │  │ Requests     │      │
+│  ├──────────────┤  ├──────────────┤  ├──────────────┤      │
+│  │ - Campanha   │  │ - Auth       │  │ - Validação  │      │
+│  │ - Doacao     │  │ - RateLimit  │  │ - Sanitize   │      │
+│  │ - Admin      │  │ - CORS       │  │ - Transform  │      │
+│  │ - Export     │  │ - Logging    │  │              │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+│                                                              │
+│  ┌──────────────────────────────────────────────────┐       │
+│  │              Services (Business Logic)           │       │
+│  ├──────────────────────────────────────────────────┤       │
+│  │ - CampanhaService    | - ExportService           │       │
+│  │ - DoacaoService      | - NotificationService     │       │
+│  │ - UploadService      | - QRCodeService           │       │
+│  │ - AuthService        | - RetentionService        │       │
+│  └──────────────────────────────────────────────────┘       │
+│                                                              │
+│  ┌──────────────────────────────────────────────────┐       │
+│  │              Jobs & Queues                       │       │
+│  ├──────────────────────────────────────────────────┤       │
+│  │ - LimparComprovantesJob (diário)                 │       │
+│  │ - EnviarNotificacaoJob                           │       │
+│  │ - GerarExportJob                                 │       │
+│  └──────────────────────────────────────────────────┘       │
+│                                                              │
+└─────────────────────────┬────────────────────────────────────┘
+                          │
+                          │ SDK
+                          │
+┌─────────────────────────▼────────────────────────────────────┐
+│                   CAMADA DE PERSISTÊNCIA                     │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌────────────────────┐         ┌────────────────────┐      │
+│  │  Firebase Firestore│         │  Firebase Storage  │      │
+│  ├────────────────────┤         ├────────────────────┤      │
+│  │ - organizacoes     │         │ - /comprovantes    │      │
+│  │ - unidades         │         │ - /exports         │      │
+│  │ - campanhas        │         │ - /temp            │      │
+│  │ - doacoes          │         └────────────────────┘      │
+│  │ - doadores         │                                     │
+│  │ - usuarios         │         ┌────────────────────┐      │
+│  │ - exports          │         │  Firebase Auth     │      │
+│  └────────────────────┘         ├────────────────────┤      │
+│                                 │ - Sessões Admin    │      │
+│  ┌────────────────────┐         │ - Tokens JWT       │      │
+│  │  Cache (Redis)     │         └────────────────────┘      │
+│  ├────────────────────┤                                     │
+│  │ - Stats campanhas  │                                     │
+│  │ - Rate limiting    │                                     │
+│  └────────────────────┘                                     │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Fluxo de Dados Real-Time
+```
+┌──────────────┐
+│   DOADOR     │
+│  (Browser)   │
+└──────┬───────┘
+       │ 1. Preenche formulário "Doar"
+       ▼
+┌──────────────────────────────────┐
+│  Laravel Controller              │
+│  DoacaoController@store          │
+└──────┬───────────────────────────┘
+       │ 2. Valida dados
+       │ 3. Gera PIN único
+       ▼
+┌──────────────────────────────────┐
+│  DoacaoService                   │
+│  - validarDoacao()               │
+│  - gerarPIN()                    │
+│  - vincularDoador()              │
+└──────┬───────────────────────────┘
+       │ 4. Salva no Firestore
+       ▼
+┌──────────────────────────────────┐
+│  Firebase Firestore              │
+│  Collection: doacoes             │
+│  Document: {doacao_uuid}         │
+└──────┬───────────────────────────┘
+       │ 5. Real-time listener detecta mudança
+       ▼
+┌──────────────────────────────────┐
+│  ADMIN (Browser)                 │
+│  Dashboard aberto                │
+│  ✨ Doação aparece INSTANTÂNEA  │
+└──────────────────────────────────┘
+Padrões de Design Aplicados
+1. Repository Pattern (Abstração de Dados)
+php// app/Repositories/DoacaoRepository.php
+interface DoacaoRepositoryInterface {
+    public function create(array $data): Doacao;
+    public function findByPIN(string $pin): ?Doacao;
+    public function getPendentesPriorizadas(string $campanhaId): Collection;
+}
+
+class FirestoreDoacaoRepository implements DoacaoRepositoryInterface {
+    // Implementação específica do Firestore
+}
+2. Service Layer (Lógica de Negócio)
+php// app/Services/DoacaoService.php
+class DoacaoService {
+    public function __construct(
+        private DoacaoRepository $repository,
+        private NotificationService $notifier,
+        private UploadService $uploader
+    ) {}
+    
+    public function registrarDoacao(array $data): Doacao {
+        // Validação de negócio
+        // Geração de PIN
+        // Vinculação de doador
+        // Notificação de admin
+        // Retorno de dados
+    }
+}
+3. Observer Pattern (Real-Time)
+javascript// Frontend: Alpine.js + Firestore SDK
+firestore.collection('doacoes')
+  .where('campanha_id', '==', campanhaId)
+  .onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === 'added')Continuar20:30this.adicionarDoacao(change.doc.data());
+if (change.type === 'modified') this.atualizarDoacao(change.doc.data());
+if (change.type === 'removed')  this.removerDoacao(change.doc.id);
+});
+});
+
+#### 4. Factory Pattern (Criação de Objetos)
+```php
+// app/Factories/PINFactory.php
+class PINFactory {
+    public static function generate(): string {
+        // Gera PIN alfanumérico único
+        // Formato: A1B2C3 (6 chars)
+        // Validação de unicidade
+    }
+}
+```
+
+#### 5. Strategy Pattern (Formas de Pagamento)
+```php
+// app/Strategies/PagamentoStrategy.php
+interface PagamentoStrategy {
+    public function processar(Doacao $doacao): bool;
+}
+
+class PIXStrategy implements PagamentoStrategy { /* ... */ }
+class DinheiroFisicoStrategy implements PagamentoStrategy { /* ... */ }
+```
+
+---
+
+## 🛣️ Roadmap de Implementação
+
+### Fase 1: MVP Core (4 semanas) - **Prioridade Crítica**
+
+#### Semana 1: Setup e Autenticação
+Sprint 1.1 - Infraestrutura
+├─ Setup Laravel + Firebase SDK
+├─ Configuração de ambiente (dev/staging/prod)
+├─ Firebase projeto (Firestore + Storage + Auth)
+├─ Estrutura de pastas
+└─ Testes de conexão
+Sprint 1.2 - Autenticação
+├─ Sistema de login admin (Laravel Sanctum)
+├─ Integração Firebase Auth
+├─ Middleware de autorização
+├─ Sistema de roles (nacional/unidade/moderador)
+└─ Testes de autenticação
+Entregáveis:
+✅ Projeto rodando localmente
+✅ Admin consegue fazer login
+✅ Roles funcionando
+
+#### Semana 2: Gestão de Unidades e Campanhas
+Sprint 2.1 - Unidades
+├─ CRUD de unidades (admin nacional)
+├─ Vinculação de admins a unidades
+├─ Dashboard de unidades
+└─ Testes de permissões
+Sprint 2.2 - Campanhas
+├─ Criar campanha (com metadados)
+├─ Editar campanha
+├─ Gerar token único
+├─ Gerar QR Code
+├─ Listar campanhas da unidade
+└─ Testes de campanha
+Entregáveis:
+✅ Admin nacional gerencia unidades
+✅ Admin de unidade cria campanhas
+✅ Página pública da campanha (view-only)
+
+#### Semana 3: Sistema de Doações
+Sprint 3.1 - Doar (Frontend)
+├─ Página pública da campanha (lista real-time)
+├─ Formulário de doação (sem login)
+├─ Seleção de tipo (item/dinheiro)
+├─ Seleção de forma (PIX/físico)
+├─ Geração de PIN
+└─ Tela de confirmação
+Sprint 3.2 - Doar (Backend)
+├─ Controller e Service de doação
+├─ Validação de dados
+├─ Criação/vinculação de doador
+├─ Salvamento no Firestore
+├─ Real-time listener (admin)
+└─ Testes de doação
+Entregáveis:
+✅ Doador consegue doar sem login
+✅ PIN é gerado automaticamente
+✅ Doação aparece em tempo real no admin
+
+#### Semana 4: Confirmação e Comprovantes
+Sprint 4.1 - Comprovantes
+├─ Upload de comprovante (frontend)
+├─ Validação de arquivo (tipo/tamanho)
+├─ Storage no Firebase Storage
+├─ Visualização de comprovante (modal)
+└─ Testes de upload
+Sprint 4.2 - Confirmação Admin
+├─ Lista de doações pendentes (priorizada)
+├─ Confirmar em 1 clique
+├─ Rejeitar com motivo
+├─ Filtros (status, tipo, forma)
+├─ Atualização de stats (cache)
+└─ Testes de confirmação
+Entregáveis:
+✅ Doador anexa comprovante PIX
+✅ Admin visualiza e confirma
+✅ Stats são atualizadas em tempo real
+✅ MVP FUNCIONAL
+
+### Fase 2: Features Essenciais (3 semanas)
+
+#### Semana 5: Edição e Recuperação
+Sprint 5.1 - Edição de Doação
+├─ Acessar por PIN
+├─ Buscar por nome (recuperação)
+├─ Editar informações (antes de confirmar)
+├─ Cancelar doação
+└─ Testes de edição
+Sprint 5.2 - Segurança
+├─ Rate limiting (uploads, doações)
+├─ Bloqueio de PIN (3 tentativas)
+├─ Validação robusta de inputs
+├─ CAPTCHA (reCAPTCHA v3)
+└─ Testes de segurança
+Entregáveis:
+✅ Doador edita doação com PIN
+✅ Recuperação por nome funciona
+✅ Sistema resistente a abuso
+
+#### Semana 6: Dashboard e Relatórios
+Sprint 6.1 - Dashboard Unidade
+├─ Visão geral (stats consolidados)
+├─ Gráfico de doações (semanal)
+├─ Lista de campanhas ativas
+├─ Alertas de pendências
+└─ Testes de dashboard
+Sprint 6.2 - Exportação
+├─ Export CSV para balancete
+├─ Export lista de doadores
+├─ Metadados de export (auditoria)
+├─ Download de exports
+└─ Testes de exportação
+Entregáveis:
+✅ Admin vê dashboard completo
+✅ Export para balancete funciona
+✅ Auditoria de exports registrada
+
+#### Semana 7: Multi-Unidade e Nacional
+Sprint 7.1 - Dashboard Nacional
+├─ Visão consolidada (todas unidades)
+├─ Ranking de unidades
+├─ Gráficos comparativos
+├─ Export consolidado nacional
+└─ Testes de dashboard nacional
+Sprint 7.2 - Compartilhamento
+├─ Link direto (otimizado)
+├─ QR Code (alta resolução)
+├─ Mensagem pronta WhatsApp
+├─ Botão nativo de compartilhamento
+└─ Testes de compartilhamento
+Entregáveis:
+✅ Admin nacional vê todas unidades
+✅ Export consolidado funciona
+✅ Compartilhamento otimizado
+
+### Fase 3: Compliance e Automação (2 semanas)
+
+#### Semana 8: Retenção de Dados
+Sprint 8.1 - Política de Retenção
+├─ Cloud Function (limpeza automática)
+├─ Job Laravel (trigger diário)
+├─ Lógica: 60 dias após export
+├─ Manutenção de metadados
+└─ Testes de retenção
+Sprint 8.2 - Backup e Auditoria
+├─ Configuração de backup (Firebase)
+├─ Logs estruturados (Laravel)
+├─ Auditoria de ações críticas
+├─ Relatório de integridade
+└─ Testes de auditoria
+Entregáveis:
+✅ Comprovantes limpos automaticamente
+✅ Backup automático configurado
+✅ Logs de auditoria completos
+
+#### Semana 9: Otimização e Deploy
+Sprint 9.1 - Performance
+├─ Otimização de queries Firestore
+├─ Cache de stats (Redis)
+├─ Lazy loading de imagens
+├─ Compressão de assets
+└─ Testes de performance (Lighthouse)
+Sprint 9.2 - Deploy Produção
+├─ Configuração Firebase Hosting
+├─ CI/CD (GitHub Actions)
+├─ Variáveis de ambiente
+├─ Monitoramento (Firebase Analytics)
+└─ Testes de produção
+Entregáveis:
+✅ Performance otimizada (Lighthouse 90+)
+✅ Deploy automatizado
+✅ Sistema em produção
+✅ LANÇAMENTO v3.0
+
+### Fase 4: Features Avançadas (v4.0 - Futuro)
+
+**Semanas 10-12:**
+- Notificações email/WhatsApp
+- Lembretes automáticos
+- Sugestão de itens (aprovação)
+- Metas nacionais agregadas
+- Dashboard com gráficos avançados
+- Auto-encerramento de campanhas
+- Duplicar campanha (template)
+- Ranking de doadores
+
+---
+
+## ðŸ"‹ Regras de Negócio Detalhadas
+
+### RN-001: Hierarquia Organizacional
+REGRA: Sistema opera em 3 níveis hierárquicos
+├─ NACIONAL: Acesso total, gerencia unidades
+├─ UNIDADE: Gerencia apenas própria unidade
+└─ MODERADOR: Apenas confirma doações da unidade
+VALIDAÇÕES:
+✓ Admin nacional pode acessar qualquer unidade
+✓ Admin de unidade NÃO pode acessar outra unidade
+✓ Moderador NÃO pode criar/editar campanhas
+✗ Não pode haver unidade sem organização
+✗ Não pode remover unidade com campanhas ativas
+
+### RN-002: Criação de Campanha
+REGRA: Campanha pertence a uma unidade específica
+PRÉ-REQUISITOS:
+✓ Admin deve estar autenticado
+✓ Admin deve ter permissão (nacional ou unidade)
+✓ Unidade deve estar ativa
+CAMPOS OBRIGATÓRIOS:
+✓ Título (min 5, max 100 chars)
+✓ Descrição (min 10, max 500 chars)
+✓ Tipo de doação (itens | dinheiro | misto)
+✓ Visibilidade (pública | privada | interna)
+CAMPOS OPCIONAIS:
+
+Meta financeira (se aceita dinheiro)
+Meta de itens (se aceita itens)
+Data início/fim
+Chave PIX (herda da unidade se não especificada)
+
+PÓS-CRIAÇÃO:
+✓ Token único gerado automaticamente (8 chars)
+✓ URL pública: /c/{token}
+✓ QR Code gerado automaticamente
+✓ Status inicial: "ativa"
+
+### RN-003: Doação Sem Login
+REGRA: Qualquer pessoa pode doar sem cadastro prévio
+IDENTIFICAÇÃO MÍNIMA:
+✓ Nome completo (obrigatório, min 3 chars)
+✓ Telefone (opcional, recomendado)
+✓ Email (opcional, recomendado)
+✓ CPF (opcional, necessário para declaração IR)
+PROCESSO:
+
+Sistema verifica se doador já existe (nome exato)
+Se existe: vincula doação ao doador existente
+Se não existe: cria novo doador automaticamente
+Doação é registrada com status "prometido"
+PIN único é gerado (6 chars alfanuméricos)
+Doador recebe PIN e link de edição
+
+VALIDAÇÕES:
+✓ Nome não pode conter números/caracteres especiais
+✓ Telefone deve estar no formato +55XXXXXXXXXXX
+✓ Email deve ser válido (se fornecido)
+✓ CPF deve ser válido (se fornecido)
+✗ Não pode doar se campanha estiver pausada/encerrada
+✗ Não pode doar item que já atingiu meta
+
+### RN-004: PIN de Edição
+REGRA: Cada doação gera um PIN único para controle
+FORMATO:
+✓ 6 caracteres alfanuméricos (ex: A1B2C3)
+✓ Apenas letras maiúsculas + números
+✓ Único em todo o sistema
+FUNCIONALIDADES COM PIN:
+✓ Ver detalhes completos da doação
+✓ Editar informações (apenas se status = "prometido")
+✓ Anexar/substituir comprovante PIX
+✓ Solicitar confirmação (dinheiro físico)
+✓ Cancelar doação (apenas se status = "prometido")
+SEGURANÇA:
+✓ Máximo 3 tentativas incorretas
+✓ Após 3 tentativas: bloqueio de 15 minutos
+✓ Bloqueio registrado no Firestore
+✗ PIN não pode ser alterado pelo doador
+✗ PIN não expira (permanente)
+
+### RN-005: Recuperação de PIN
+REGRA: Doador pode recuperar PIN por busca nominal
+PROCESSO:
+
+Doador acessa "Esqueci meu PIN"
+Informa nome completo (exatamente como cadastrou)
+Sistema busca doações com aquele nome
+Exibe lista de doações (últimas 5)
+Doador seleciona a doação correta
+Sistema exibe PIN novamente
+
+VALIDAÇÕES:
+✓ Nome deve ser exato (case-insensitive)
+✓ Máximo 5 tentativas de busca por hora/IP
+✗ Não exibe doações de outras pessoas
+✗ Não funciona se nome tiver múltiplas doações (exige contato admin)
+
+### RN-006: Upload de Comprovante
+REGRA: Doações em dinheiro via PIX requerem comprovante
+QUANDO OBRIGATÓRIO:
+✓ Tipo = dinheiro
+✓ Forma de pagamento = PIX
+FORMATOS ACEITOS:
+✓ JPG, JPEG, PNG (imagens)
+✓ PDF (documentos)
+RESTRIÇÕES:
+✓ Tamanho máximo: 5MB
+✓ Apenas 1 arquivo por doação
+✓ Pode substituir comprovante (antes de confirmar)
+VALIDAÇÕES:
+✓ Tipo MIME validado no server
+✓ Extensão validada
+✓ Tamanho validado (client e server)
+✗ Não aceita outros formatos (doc, xls, etc)
+✗ Não aceita múltiplos arquivos
+ARMAZENAMENTO:
+✓ Firebase Storage: /comprovantes/{campanha_id}/{doacao_id}.{ext}
+✓ URL temporária (válida 1 hora)
+✓ Acesso apenas para admins autenticados
+
+### RN-007: Status da Doação
+REGRA: Doação passa por estados conforme confirmação
+FLUXO DE STATUS:
+TIPO ITEM:
+prometido → entregue
+prometido → cancelado
+prometido → expirado (não entregue em 7 dias)
+TIPO DINHEIRO PIX:
+prometido → aguardando (comprovante anexado)
+aguardando → confirmado (admin confirma)
+aguardando → cancelado (admin rejeita)
+TIPO DINHEIRO FÍSICO:
+prometido → aguardando (doador solicita confirmação)
+aguardando → confirmado (admin confirma recebimento)
+aguardando → cancelado (admin não recebeu)
+VALIDAÇÕES:
+✓ Apenas admin pode mover para "confirmado"
+✓ Apenas admin pode mover para "entregue"
+✓ Doador pode cancelar apenas se status = "prometido"
+✓ Admin pode cancelar a qualquer momento
+✗ Status "confirmado/entregue" é FINAL (não pode reverter)
+✗ Doador não pode editar após confirmação
+
+### RN-008: Priorização de Pendências
+REGRA: Admin vê doações priorizadas por urgência
+ORDEM DE PRIORIDADE:
+
+URGENTE (vermelho):
+
+Comprovante anexado há 24h+ sem resposta
+Prioridade: "urgente"
+
+
+ALTA (laranja):
+
+Solicitação de confirmação (dinheiro físico)
+Comprovante anexado há 12-24h
+Prioridade: "alta"
+
+
+MÉDIA (amarelo):
+
+Doações prometidas há 48h+ sem movimento
+Prioridade: "media"
+
+
+NORMAL (verde):
+
+Doações recentes (menos de 48h)
+Prioridade: "normal"
+
+
+
+CÁLCULO AUTOMÁTICO:
+✓ Cloud Function roda a cada 6 horas
+✓ Atualiza campo "prioridade" no Firestore
+✓ Admin sempre vê lista ordenada por prioridade
+NOTIFICAÇÕES:
+✓ Badge com contador de "URGENTES"
+✓ Destaque visual (cor de fundo)
+
+### RN-009: Confirmação em Lote
+REGRA: Admin pode confirmar múltiplas doações de uma vez
+QUANDO USAR:
+✓ Eventos presenciais (recebimento em massa)
+✓ Confirmação de múltiplos PIX de uma vez
+✓ Final de campanha (fechamento)
+PROCESSO:
+
+Admin seleciona doações (checkbox)
+Clica "Confirmar Todas Selecionadas"
+Sistema confirma modal: "Confirmar X doações?"
+Admin confirma
+Sistema processa em background (job)
+Admin vê progresso (barra)
+Doações confirmadas desaparecem da lista
+
+RESTRIÇÕES:
+✓ Máximo 50 doações por lote
+✓ Apenas doações no status "aguardando"
+✗ Não pode confirmar se campanha encerrada
+✗ Não pode reverter confirmação em lote
+
+### RN-010: Exportação para Balancete
+REGRA: Admin exporta dados fiscais em formato CSV
+QUANDO EXPORTAR:
+✓ Mensal (para balancete mensal)
+✓ Ao encerrar campanha
+✓ Para declaração de IR
+✓ Para auditoria interna
+FORMATO CSV:
+Data,Doador,CPF,Tipo,Valor,Forma Pagamento,Status,Confirmado Em
+02/01/2025,João Silva,123.456.789-00,Dinheiro,100.00,PIX,Confirmado,02/01/2025 14:30
+02/01/2025,Maria Costa,-,Item,0.00,Entrega,Entregue,03/01/2025 10:15
+COLUNAS OBRIGATÓRIAS:
+✓ Data da doação
+✓ Nome do doador
+✓ CPF (ou "-" se não fornecido)
+✓ Tipo (item | dinheiro)
+✓ Valor (R$) ou "0.00" se item
+✓ Forma de pagamento
+✓ Status final
+✓ Data de confirmação
+METADADOS:
+✓ Hash MD5 do arquivo (integridade)
+✓ Total de registros
+✓ Total arrecadado
+✓ Data/hora do export
+✓ Admin responsável
+PÓS-EXPORT:
+✓ Registra em collection "exports" (auditoria)
+✓ Inicia contagem de 60 dias para limpeza de comprovantes
+✗ Não inclui doações canceladas
+✗ Não inclui doações "prometido" (não confirmadas)
+
+### RN-011: Retenção de Comprovantes
+REGRA: Comprovantes são excluídos 60 dias após export
+MOTIVAÇÃO:
+✓ Compliance LGPD (minimização de dados)
+✓ Economia de storage
+✓ Dados fiscais preservados (metadados)
+PROCESSO:
+
+Admin exporta balancete da campanha
+Sistema registra data do export
+Cloud Function roda diariamente (cron)
+Identifica comprovantes com 60+ dias desde export
+Exclui arquivo físico do Storage
+Mantém metadado: "comprovante_excluido: true"
+
+O QUE É MANTIDO:
+✓ Nome do doador
+✓ Valor doado
+✓ Data da doação
+✓ Data de confirmação
+✓ Status final
+✓ Flag: "comprovante_excluido: true"
+O QUE É EXCLUÍDO:
+✗ Arquivo de imagem (JPG/PNG/PDF)
+✗ URL de download
+✗ Metadados do arquivo (tamanho, hash)
+VALIDAÇÕES:
+✓ Apenas comprovantes de campanhas EXPORTADAS
+✓ Apenas comprovantes com status "confirmado"
+✗ Não exclui se campanha ainda ativa
+✗ Não exclui se export ainda não foi feito
+
+### RN-012: Compartilhamento de Campanha
+REGRA: Campanha pode ser compartilhada de múltiplas formas
+MÉTODOS DISPONÍVEIS:
+
+LINK DIRETO:
+
+Formato: https://listafacil.com.br/c/{token}
+Token: 8 caracteres alfanuméricos
+Único e permanente
+Funciona em qualquer app/navegador
+
+
+QR CODE:
+
+Gerado automaticamente
+Alta resolução (300 DPI)
+Formato PNG
+Download direto pelo admin
+Ideal para impressão (cartazes, folhetos)
+
+
+MENSAGEM PRONTA WHATSAPP:
+
+Texto pré-formatado com emojis
+Inclui itens prioritários (5 primeiros)
+Inclui últimos doadores (3 nomes)
+Inclui link direto
+Botão "Copiar para WhatsApp"
+
+
+BOTÃO NATIVO:
+
+Usa Web Share API (navigator.share())
+Compartilha em qualquer app instalado
+Fallback: copia link se não suportado
+
+
+
+CUSTOMIZAÇÃO:
+✓ Admin pode editar texto introdutório
+✓ Admin pode escolher quais itens destacar
+✓ Admin pode ocultar nomes de doadores
+✗ Não pode customizar o token (gerado automaticamente)
+
+---
+
+## 🔒 Estratégias de Segurança
+
+### Segurança em Camadas
+
+#### Layer 1: Frontend (Validação Client-Side)
+```javascript
+// Validação básica antes de enviar
+Alpine.data('formDoacao', () => ({
+  validarNome(nome) {
+    return nome.length >= 3 && /^[\pL\s\-]+$/u.test(nome);
+  },
+  
+  validarValor(valor) {
+    return valor > 0 && valor <= 999999.99;
+  },
+  
+  validarComprovante(file) {
+    const tipos = ['image/jpeg', 'image/png', 'application/pdf'];
+    const tamanho = 5 * 1024 * 1024; // 5MB
+    return tipos.includes(file.type) && file.size <= tamanho;
+  }
+}));
+```
+
+#### Layer 2: Backend (Validação Server-Side)
+```php
+// app/Http/Requests/DoacaoRequest.php
+class DoacaoRequest extends FormRequest {
+    public function rules(): array {
+        return [
+            'nome' => 'required|min:3|max:100|regex:/^[\pL\s\-]+$/u',
+            'telefone' => 'nullable|regex:/^\+55\d{10,11}$/',
+            'email' => 'nullable|email:rfc,dns',
+            'cpf' => 'nullable|cpf', // Custom rule
+            'tipo' => 'required|in:item,dinheiro',
+            'valor' => 'required_if:tipo,dinheiro|numeric|min:0.01|max:999999.99',
+            'forma_pagamento' => 'required_if:tipo,dinheiro|in:pix,dinheiro_fisico',
+            'comprovante' => 'required_if:forma_pagamento,pix|file|mimes:jpg,png,pdf|max:5120'
+        ];
+    }
+    
+    protected function prepareForValidation() {
+        // Sanitização
+        $this->merge([
+            'nome' => strip_tags($this->nome),
+            'telefone' => preg_replace('/[^0-9+]/', '', $this->telefone),
+            'cpf' => preg_replace('/[^0-9]/', '', $this->cpf)
+        ]);
+    }
+}
+```
+
+#### Layer 3: Firebase Security Rules
+```javascript
+// firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Organizações (apenas leitura pública)
+    match /organizacoes/{orgId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+                      get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'nacional';
+    }
+    
+    // Unidades
+    match /unidades/{unidadeId} {
+      allow read: if true;
+      allow write: if request.auth != null && (
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'nacional' ||
+        (get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'unidade' &&
+         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.unidade_id == unidadeId)
+      );
+    }
+    
+    // Campanhas (leitura pública, escrita restrita)
+    match /campanhas/{campanhaId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && (
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'nacional' ||
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.unidade_id == resource.data.unidade_id
+      );
+    }
+    
+    // Doações (leitura pública, escrita controlada)
+    match /doacoes/{doacaoId} {
+      allow read: if true;
+      allow create: if true; // Qualquer um pode doar
+      allow update: if request.auth != null || // Admin
+                       request.resource.data.pin == resource.data.pin; // Doador com PIN
+      allow delete: if request.auth != null; // Apenas admin
+    }
+    
+    // Doadores (acesso restrito)
+    match /doadores/{doadorId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Usuários (apenas próprio perfil)
+    match /usuarios/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+
+// storage.rules
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Comprovantes (upload público, leitura restrita)
+    match /comprovantes/{campanhaId}/{doacaoId}.{ext} {
+      allow read: if request.auth != null; // Apenas admins
+      allow write: if request.resource.size < 5 * 1024 * 1024 && // 5MB
+                      request.resource.contentType.matches('image/.*|application/pdf');
+    }
+    
+    // Exports (apenas admins)
+    match /exports/{file} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+#### Layer 4: Rate Limiting
+```php
+// app/Http/Kernel.php
+protected $middlewareGroups = [
+    'api' => [
+        'throttle:api', // 60 requests/min padrão
+    ],
+];
+
+// routes/api.php
+Route::middleware('throttle:donations')->group(function () {
+    Route::post('/doacoes', [DoacaoController::class, 'store']);
+});
+
+// app/Providers/RouteServiceProvider.php
+RateLimiter::for('donations', function (Request $request) {
+    return Limit::perHour(10)->by($request->ip())
+        ->response(function () {
+            return response()->json([
+                'message' => 'Você atingiu o limite de doações por hora. Tente novamente mais tarde.'
+            ], 429);
+        });
+});
+```
+
+#### Layer 5: CAPTCHA (reCAPTCHA v3)
+```php
+// app/Services/CaptchaService.php
+class CaptchaService {
+    public function verify(string $token): bool {
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => config('services.recaptcha.secret'),
+            'response' => $token,
+        ]);
+        
+        $data = $response->json();
+        
+        // Score mínimo: 0.5 (0.0 = bot, 1.0 = humano)
+        return $data['success'] && $data['score'] >= 0.5;
+    }
+}
+
+// app/Http/Controllers/DoacaoController.php
+public function store(DoacaoRequest $request, CaptchaService $captcha) {
+    if (!$captcha->verify($request->input('captcha_token'))) {
+        return response()->json(['message' => 'Falha na verificação de segurança.'], 403);
+    }
+    
+    // Processar doação...
+}
+```
+
+---
+
+## 📈 Estimativa de Custos e Infraestrutura
+
+### Custos Operacionais (Firebase Free Tier)
+
+#### Limites Gratuitos (Spark Plan)
+FIRESTORE:
+├─ Storage: 1 GB
+├─ Reads: 50.000/dia
+├─ Writes: 20.000/dia
+└─ Deletes: 20.000/dia
+STORAGE:
+├─ Storage: 5 GB
+├─ Download: 1 GB/dia
+└─ Upload: ilimitado
+HOSTING:
+├─ Storage: 10 GB
+└─ Bandwidth: 10 GB/mês
+AUTH:
+└─ Usuários: ilimitado
+
+#### Projeção de Uso Real (30.000 associados, 30 unidades)
+
+**Cenário: 10 campanhas simultâneas/mês**
+CAMPANHAS/ANO: 120 (30 unidades × 4 campanhas/ano)
+DOAÇÕES/CAMPANHA: ~250 (média)
+DOAÇÕES TOTAIS/ANO: 30.000
+FIRESTORE:
+├─ Storage usado: ~200 MB (metadados)
+│  └─ 30.000 doações × 5 KB = 150 MB
+│  └─ 3.600 campanhas × 10 KB = 36 MB
+│  └─ Buffer: 14 MB
+│
+├─ Reads/dia: ~15.000 (bem abaixo do limite)
+│  └─ 500 doadores visualizam campanhas = 5.000 reads
+│  └─ 30 admins consultam dashboards = 10.000 reads
+│
+└─ WritesContinuar20:32/dia: ~200 (muito abaixo do limite)
+└─ 150 novas doações/dia (pico)
+└─ 50 confirmações/dia
+STORAGE:
+├─ Comprovantes ativos: ~2.5 GB (rotação 60 dias)
+│  └─ 30.000 doações/ano × 50% PIX = 15.000
+│  └─ 15.000 × 60 dias retenção ÷ 365 = ~2.500 ativos
+│  └─ 2.500 × 1 MB médio = 2.5 GB
+│
+└─ Download/dia: ~200 MB (admins visualizando)
+└─ 100 visualizações × 2 MB = 200 MB
+✅ PERMANECE NO FREE TIER (custo R$ 0,00/mês)
+
+**Cenário Extremo: 50 campanhas simultâneas**
+DOAÇÕES/MÊS: 12.500 (50 × 250)
+FIRESTORE:
+├─ Writes/dia: ~450 (ainda 77% abaixo do limite)
+└─ Reads/dia: ~30.000 (40% abaixo do limite)
+STORAGE:
+├─ Comprovantes: ~4.5 GB (próximo ao limite)
+└─ Download: ~500 MB/dia (50% do limite)
+âš ï¸ AINDA NO FREE TIER, mas próximo dos limites
+
+**Limite para Upgrade (Blaze Plan):**
+QUANDO MIGRAR:
+
+Storage > 4.5 GB (90% do limite)
+Reads > 45.000/dia (90% do limite)
+Download > 900 MB/dia (90% do limite)
+
+CUSTO ESTIMADO NO BLAZE:
+
+Storage: US$ 0.18/GB/mês
+Reads: US$ 0.06/100k
+Writes: US$ 0.18/100k
+Download: US$ 0.12/GB
+
+CENÁRIO DE 100 CAMPANHAS/MÊS:
+
+Storage extra: 2 GB × $0.18 = $0.36
+Reads extra: 100k × $0.06 = $6.00
+Download extra: 5 GB × $0.12 = $0.60
+TOTAL: ~US$ 7/mês = R$ 35/mês (cotação R$ 5,00)
+
+
+### Infraestrutura Laravel
+
+**Hospedagem Recomendada:**
+OPÇÃO 1: Hospedagem Compartilhada (MVP)
+
+Hostinger/HostGator: R$ 20-40/mês
+PHP 8.2, MySQL, SSL incluso
+Suficiente para 10k visitas/mês
+
+OPÇÃO 2: VPS (Crescimento)
+
+DigitalOcean Droplet: US$ 6/mês (R$ 30/mês)
+1 GB RAM, 25 GB SSD
+Escalável conforme necessário
+
+OPÇÃO 3: Laravel Forge + DigitalOcean
+
+Forge: US$ 12/mês (gerenciamento)
+Droplet: US$ 6/mês (servidor)
+TOTAL: US$ 18/mês (R$ 90/mês)
+Deploy automatizado, backups, monitoramento
+
+RECOMENDAÇÃO:
+Iniciar com Opção 1 (R$ 30/mês)
+Migrar para Opção 3 após 50+ campanhas simultâneas
+
+**Custo Total Mensal Estimado:**
+FASE MVP (0-10 campanhas/mês):
+├─ Firebase: R$ 0,00
+├─ Hospedagem: R$ 30,00
+├─ Domínio: R$ 40,00/ano = R$ 3,33/mês
+└─ TOTAL: R$ 33,33/mês
+FASE CRESCIMENTO (10-50 campanhas/mês):
+├─ Firebase: R$ 0,00
+├─ VPS: R$ 30,00
+├─ Domínio: R$ 3,33/mês
+└─ TOTAL: R$ 33,33/mês
+FASE EXPANSÃO (50-100 campanhas/mês):
+├─ Firebase Blaze: R$ 35,00
+├─ Forge + VPS: R$ 90,00
+├─ Domínio: R$ 3,33/mês
+└─ TOTAL: R$ 128,33/mês
+✅ Custo por campanha: R$ 1,28 (fase expansão)
+✅ Custo por doação: R$ 0,004 (fase expansão)
+
+---
+
+## 🎨 Interface e UX - Diretrizes de Design
+
+### Princípios de Design
+
+#### 1. Mobile-First (80% dos acessos via celular)
+```css
+/* Breakpoints */
+xs: 320px  (celulares pequenos)
+sm: 640px  (celulares médios)
+md: 768px  (tablets)
+lg: 1024px (desktops)
+xl: 1280px (desktops grandes)
+```
+
+#### 2. Acessibilidade (WCAG 2.1 AA)
+CONTRASTE:
+✓ Texto normal: 4.5:1 mínimo
+✓ Texto grande (18px+): 3:1 mínimo
+✓ Elementos interativos: 3:1 mínimo
+TAMANHOS:
+✓ Fonte corpo: 16px mínimo
+✓ Botões: 18px fonte, 44×44px área
+✓ Links: 16px fonte, padding 8px
+NAVEGAÇÃO:
+✓ Tab index lógico
+✓ Focus visível (outline 2px)
+✓ Skip links para navegação rápida
+
+#### 3. Simplicidade Radical
+REGRA DOS 3 CLIQUES:
+Qualquer ação deve ser completada em máximo 3 cliques
+├─ Doar: Ver lista → Escolher item → Confirmar
+├─ Confirmar: Ver pendências → Visualizar → Confirmar
+└─ Criar campanha: Dashboard → Nova → Salvar
+LINGUAGEM SIMPLES:
+✓ Nível 5ª série (Flesch Reading Ease > 60)
+✓ Verbos diretos (Doar, Confirmar, Enviar)
+✓ Evitar jargões técnicos
+✗ Evitar termos ambíguos
+
+### Componentes Principais
+
+#### Página Pública da Campanha
+```html
+<div class="campanha-publica">
+  <!-- Header -->
+  <header class="bg-gradient py-8">
+    <h1 class="text-3xl font-bold">Campanha Natal 2025</h1>
+    <p class="text-lg mt-2">Unidade São Paulo - Centro</p>
+    
+    <!-- Progresso (se meta definida) -->
+    <div class="progress-bar mt-4">
+      <div class="progress-fill" style="width: 65%"></div>
+      <span class="progress-label">R$ 6.500 de R$ 10.000</span>
+    </div>
+  </header>
+  
+  <!-- Lista de Itens -->
+  <section class="lista-itens py-6">
+    <!-- Item Disponível -->
+    <div class="item disponivel">
+      <div class="item-info">
+        <h3 class="text-xl">🍚 Arroz 5kg</h3>
+        <p class="text-sm text-gray-600">Faltam 15 unidades</p>
+      </div>
+      <button class="btn-doar bg-green-500">QUERO DOAR</button>
+    </div>
+    
+    <!-- Item Prometido -->
+    <div class="item prometido">
+      <div class="item-info">
+        <h3 class="text-xl">🥫 Feijão 2kg</h3>
+        <p class="text-sm text-yellow-600">Maria prometeu (aguardando)</p>
+      </div>
+      <button class="btn-doar" disabled>PROMETIDO</button>
+    </div>
+    
+    <!-- Item Completo -->
+    <div class="item completo">
+      <div class="item-info">
+        <h3 class="text-xl">🧴 Óleo 900ml</h3>
+        <p class="text-sm text-green-600">✓ Meta atingida! (20 entregues)</p>
+      </div>
+      <span class="badge-completo">✓ COMPLETO</span>
+    </div>
+  </section>
+  
+  <!-- Doar Dinheiro -->
+  <section class="doar-dinheiro py-6 bg-gray-50">
+    <h2 class="text-2xl font-bold mb-4">💵 Ou doe em dinheiro</h2>
+    <button class="btn-doar-dinheiro bg-blue-500 w-full">DOAR QUALQUER VALOR</button>
+  </section>
+  
+  <!-- Últimos Doadores -->
+  <section class="ultimos-doadores py-6">
+    <h3 class="text-lg font-semibold mb-3">❤️ Quem já ajudou:</h3>
+    <div class="doadores-lista">
+      <span class="doador-badge">Maria S.</span>
+      <span class="doador-badge">João P.</span>
+      <span class="doador-badge">Ana C.</span>
+      <span class="doador-mais">+42 pessoas</span>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer class="py-6 text-center">
+    <button class="btn-compartilhar">📤 Compartilhar Campanha</button>
+    <p class="text-sm text-gray-500 mt-4">Powered by Listafacil</p>
+  </footer>
+</div>
+```
+
+#### Dashboard Admin
+```html
+<div class="admin-dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <nav>
+      <a href="/dashboard" class="nav-item active">📊 Visão Geral</a>
+      <a href="/campanhas" class="nav-item">🎯 Campanhas</a>
+      <a href="/doacoes" class="nav-item">
+        💝 Doações 
+        <span class="badge-pendente">12</span>
+      </a>
+      <a href="/relatorios" class="nav-item">📈 Relatórios</a>
+      <a href="/configuracoes" class="nav-item">⚙️ Configurações</a>
+    </nav>
+  </aside>
+  
+  <!-- Main Content -->
+  <main class="dashboard-content">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Arrecadado</h3>
+        <p class="stat-value">R$ 15.230,50</p>
+        <span class="stat-change">+12% vs mês passado</span>
+      </div>
+      
+      <div class="stat-card">
+        <h3>Doações Este Mês</h3>
+        <p class="stat-value">342</p>
+        <span class="stat-change">+8% vs mês passado</span>
+      </div>
+      
+      <div class="stat-card urgente">
+        <h3>Pendentes</h3>
+        <p class="stat-value">12</p>
+        <span class="stat-alert">⚠️ 3 urgentes</span>
+      </div>
+    </div>
+    
+    <!-- Campanhas Ativas -->
+    <section class="campanhas-ativas mt-8">
+      <h2>Campanhas Ativas</h2>
+      
+      <div class="campanha-card">
+        <div class="campanha-header">
+          <h3>Campanha Natal 2025</h3>
+          <span class="status-badge ativa">Ativa</span>
+        </div>
+        
+        <div class="campanha-stats">
+          <div class="stat-mini">
+            <span class="label">Doações:</span>
+            <span class="value">67</span>
+          </div>
+          <div class="stat-mini">
+            <span class="label">Arrecadado:</span>
+            <span class="value">R$ 5.230</span>
+          </div>
+          <div class="stat-mini urgente">
+            <span class="label">Pendentes:</span>
+            <span class="value">8</span>
+          </div>
+        </div>
+        
+        <div class="campanha-acoes">
+          <button class="btn-secundario">Gerenciar</button>
+          <button class="btn-primario">Ver Doações</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+```
+
+---
+
+## ✅ Conclusão e Próximos Passos
+
+### Resumo Executivo
+
+**Listafacil v3.0** é um sistema web robusto e escalável que resolve um problema real de 30.000+ associados de organizações religiosas distribuídas nacionalmente. A stack **Laravel + Firebase** foi estrategicamente escolhida para garantir:
+
+✅ **Custo Zero** (Free Tier suporta 50+ campanhas simultâneas)  
+✅ **Real-Time Nativo** (Firestore sincroniza instantaneamente)  
+✅ **Escalabilidade Horizontal** (suporta crescimento orgânico)  
+✅ **Compliance Fiscal** (exportação para balancete + retenção de 60 dias)  
+✅ **UX Simplificada** (doar em 3 cliques, sem login)  
+✅ **Multi-Unidade** (hierarquia nacional → unidades → campanhas)  
+
+### Diferenciais Técnicos
+
+1. **Arquitetura Híbrida:** Laravel (backend PHP confiável) + Firebase (real-time + storage)
+2. **Doação Friction-Free:** Zero cadastros, apenas nome
+3. **PIN de Edição:** Controle descentralizado sem login
+4. **Retenção Inteligente:** Compliance LGPD automático
+5. **Real-Time Dashboard:** Admin vê doações aparecerem instantaneamente
+
+### Roadmap Priorizado
+
+**MVP (9 semanas):**  
+✅ Autenticação + Multi-unidade  
+✅ Criar campanhas + Compartilhar  
+✅ Doar sem login + PIN  
+✅ Confirmar + Comprovantes  
+✅ Export + Retenção  
+
+**v3.0 (Produção):**  
+✅ Dashboard Nacional  
+✅ Confirmação em Lote  
+✅ Real-Time Completo  
+
+**v4.0 (Futuro):**  
+🔜 Notificações Email/WhatsApp  
+🔜 Gráficos Avançados  
+🔜 Sugestão de Itens  
+🔜 Metas Nacionais  
+
+### Recomendações Finais
+
+**Para Desenvolvimento:**
+- Iniciar com MVP Core (Fase 1-3)
+- TDD (Test-Driven Development) para regras críticas
+- Deploy contínuo (CI/CD com GitHub Actions)
+- Monitoramento desde o dia 1 (Firebase Analytics)
+
+**Para Operação:**
+- Iniciar no Free Tier (custo zero)
+- Monitorar uso semanal (Firebase Console)
+- Migrar para Blaze apenas quando necessário (>45 campanhas/mês)
+- Manter backups semanais (automático no Firebase)
+
+**Para UX:**
+- Testes de usabilidade com idosos (público-alvo real)
+- Protótipos clicáveis (Figma) antes de codar
+- Lighthouse Audit a cada sprint (performance)
+- WCAG 2.1 AA compliance obrigatório
+
+---
+
+**Documento preparado por:** Engenheiro Senior Laravel  
+**Versão:** 3.0 (Janeiro 2025)  
+**Status:** Pronto para implementação  
+**Estimativa total:** 210 horas (~6 semanas com 1 dev full-time)  
+**Custo operacional:** R$ 33/mês (MVP) | R$ 128/mês (escala nacional)  
+
+**Contato para dúvidas técnicas:** desenvolvimento@listafacil.com.br
+
+---
+
+*Este documento é um guia técnico completo. Para questões específicas de implementação, consulte a documentação oficial de [Laravel](https://laravel.com/docs) e [Firebase](https://firebase.google.com/docs).*Claude é uma IA e pode cometer erros. Por favor, verifique as respostas. Sonnet 4.5
